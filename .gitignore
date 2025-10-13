@@ -1,1 +1,28 @@
 data.bag
+
+# ROS 2 build files
+build/
+install/
+log/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Results and temporary files
+direct_processing_results/
+quick_test_results/
+*.png
+*.jpg
+*.jpeg
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
