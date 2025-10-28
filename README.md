@@ -1,256 +1,191 @@
 # 激光雷达里程计项目
 
-基于KITTI数据集的激光雷达里程计实现，支持NDT和GN-ICP配准算法。
+##  项目概述
 
-## 项目结构
+本项目是一个完整的激光雷达里程计系统，实现了NDT和GN-ICP两种配准算法，支持KITTI数据集处理和ROS bag包分析。项目包含完整的代码实现、视频录制、地图保存、轨迹评估等功能。
+
+##  项目完成情况
+
+### 任务1: 配准算法实现 
+- **NDT配准**: 使用PCL库实现正态分布变换配准
+- **GN-ICP配准**: 手写高斯牛顿ICP配准算法
+- **代码位置**: `src/ndt_registration.cpp`, `src/gn_icp_registration.cpp`
+
+### 任务2: KITTI里程计和视频录制 
+- **KITTI里程计**: 基于KITTI数据集的NDT和ICP里程计
+- **视频录制**: 生成MP4格式的里程计运行视频
+- **地图截图**: 保存全局地图PNG截图
+- **代码位置**: `src/kitti_*_odometry.cpp`, `src/lidar_odometry_enhanced.cpp`
+
+### 任务3: ROS节点和EVO评估 
+- **ROS节点**: 实现里程计轨迹保存功能
+- **EVO评估**: 使用EVO工具进行轨迹评估和可视化
+- **代码位置**: `src/ros_odometry_node.cpp`, `scripts/evaluate_with_evo.sh`
+
+### 任务4: Bag包处理 
+- **Bag包处理**: 处理激光雷达数据bag包
+- **轨迹生成**: 生成TUM格式轨迹文件
+- **可视化**: 生成2D/3D轨迹图和速度分析
+- **代码位置**: `scripts/direct_bag_processor.py`
+
+##  项目结构
 
 ```
 mapping/
-├── include/lidar_odometry/          # 头文件
-│   ├── ndt_registration.h          # NDT配准算法
-│   ├── gn_icp_registration.h       # GN-ICP配准算法
-│   ├── lidar_odometry.h            # 激光雷达里程计
-│   ├── imu_integration.h           # IMU积分
-│   ├── ros_odometry_node.h         # ROS节点
-│   └── trajectory_evaluator.h      # 轨迹评估器
-├── src/                            # 源文件
-│   ├── ndt_registration.cpp
-│   ├── gn_icp_registration.cpp
-│   ├── lidar_odometry.cpp
-│   ├── imu_integration.cpp
-│   ├── ros_odometry_node.cpp
-│   ├── trajectory_evaluator.cpp
-│   ├── ndt_odometry.cpp           # NDT里程计主程序
-│   ├── icp_odometry.cpp           # ICP里程计主程序
-│   └── trajectory_evaluator.cpp   # 轨迹评估主程序
-├── launch/                         # 启动文件
-│   └── lidar_odometry.launch
-├── config/                         # 配置文件
-│   └── lidar_odometry.rviz
-├── CMakeLists.txt                  # CMake配置
-├── package.xml                     # ROS包配置
-└── README.md                       # 说明文档
+├── src/                          # 源代码文件 (17个)
+│   ├── ndt_registration.cpp      # NDT配准算法
+│   ├── gn_icp_registration.cpp   # GN-ICP配准算法
+│   ├── lidar_odometry.cpp        # 里程计核心实现
+│   ├── kitti_*_odometry.cpp      # KITTI里程计
+│   ├── ros_odometry_node.cpp     # ROS节点
+│   └── ...
+├── include/lidar_odometry/       # 头文件 (7个)
+├── scripts/                      # 脚本文件 (5个)
+│   ├── direct_bag_processor.py   # Bag包处理器
+│   ├── evaluate_with_evo.sh      # EVO评估脚本
+│   ├── show_results.py           # 结果展示脚本
+│   ├── simple_trajectory_evaluator.py # 轨迹评估脚本
+│   └── view_pointcloud.py       # 点云查看器
+├── results/                      # 结果文件 
+│   ├── pointclouds/             # 点云文件 (4个)
+│   ├── screenshots/            # 截图文件 (2个)
+│   ├── videos/                 # 视频文件 (2个)
+│   ├── trajectories/           # 轨迹文件 (3个)
+│   └── visualizations/         # 可视化文件 (2个)
+├── evo_evaluation_results/       # EVO评估结果
+│   ├── ndt/                      # NDT评估结果 (8个文件)
+│   └── gn_icp/                   # GN-ICP评估结果 (8个文件)
+├── kitti_data/                   # KITTI数据集
+├── build/                       # 编译输出 (69MB)
+├── launch/                      # ROS启动文件
+├── config/                      # 配置文件
+├── evo_env/                     # EVO虚拟环境 (451MB)
+├── data.bag                     # ROS Bag包 (15.5GB)
+├── PROJECT_FILES_ORGANIZATION.md # 文件整理说明
+└── 项目报告.md                   # 项目报告文档
 ```
 
-## 功能特性
+##  快速开始
 
-### 1. 配准算法
-- **NDT配准**: 基于PCL库的NDT (Normal Distributions Transform) 配准
-- **GN-ICP配准**: 手写实现的Gauss-Newton ICP配准算法
-
-### 2. 里程计功能
-- 基于KITTI数据集的激光雷达里程计
-- 支持多种配准方法
-- 实时轨迹生成和可视化
-- 轨迹保存和加载
-
-### 3. ROS集成
-- ROS节点支持
-- 话题发布和订阅
-- TF变换发布
-- RViz可视化
-
-### 4. IMU融合
-- IMU数据积分
-- 位姿预测
-- 多传感器融合
-
-### 5. 轨迹评估
-- ATE (Absolute Trajectory Error) 计算
-- RPE (Relative Pose Error) 计算
-- 与evo工具兼容的轨迹格式
-
-## 编译安装
-
-### 依赖项
-- ROS Melodic/Noetic
-- PCL 1.8+
-- Eigen3
-- OpenCV (可选，用于可视化)
-
-### 编译步骤
+### 1. 编译项目
 ```bash
-# 创建工作空间
-mkdir -p ~/catkin_ws/src
-cd ~/catkin_ws/src
-
-# 复制项目到工作空间
-cp -r /path/to/mapping ~/catkin_ws/src/lidar_odometry
-
-# 编译
-cd ~/catkin_ws
-catkin_make
-
-# 设置环境
-source devel/setup.bash
+cd /home/sss/mapping
+mkdir -p build && cd build
+cmake ..
+make -j4
 ```
 
-## 使用方法
-
-### 1. 处理KITTI数据集
-
-#### NDT里程计
+### 2. 运行KITTI里程计
 ```bash
-# 处理KITTI序列0
-rosrun lidar_odometry ndt_odometry /path/to/kitti/dataset 0
+# NDT里程计
+./build/lidar_odometry/kitti_ndt_odometry ./kitti_data/data_odometry_velodyne/dataset/ 0
+
+# GN-ICP里程计
+./build/lidar_odometry/kitti_icp_odometry ./kitti_data/data_odometry_velodyne/dataset/ 0
+
+# 增强版里程计（包含视频录制）
+./build/lidar_odometry/kitti_enhanced_odometry ./kitti_data/data_odometry_velodyne/dataset/ 0 ndt
 ```
 
-#### GN-ICP里程计
+### 3. 处理Bag包
 ```bash
-# 处理KITTI序列0
-rosrun lidar_odometry icp_odometry /path/to/kitti/dataset 0
+# 处理bag包生成轨迹
+python3 scripts/direct_bag_processor.py ./data.bag
+
+# 查看结果
+python3 scripts/show_results.py
+
+# 轨迹评估
+python3 scripts/simple_trajectory_evaluator.py results/trajectories/ndt_trajectory_0.txt
 ```
 
-### 2. ROS节点运行
-
-#### 启动里程计节点
+### 4. EVO评估
 ```bash
-# 使用NDT配准
-roslaunch lidar_odometry lidar_odometry.launch registration_method:=ndt
+# 激活EVO环境
+source evo_env/bin/activate
 
-# 使用GN-ICP配准
-roslaunch lidar_odometry lidar_odometry.launch registration_method:=gn_icp
+# 评估轨迹
+evo_traj tum results/trajectories/ndt_trajectory_0.txt --plot
+evo_traj tum results/trajectories/gn_icp_trajectory_0.txt --plot
+
+# 或使用EVO评估脚本
+bash scripts/evaluate_with_evo.sh
 ```
 
-#### 参数配置
+### 5. 查看结果
 ```bash
-roslaunch lidar_odometry lidar_odometry.launch \
-    registration_method:=ndt \
-    voxel_size:=0.1 \
-    max_range:=100.0 \
-    min_range:=1.0 \
-    use_imu_prediction:=true
+# 查看点云文件
+python3 scripts/view_pointcloud.py results/pointclouds/ndt_global_map_0.pcd
 ```
 
-### 3. 轨迹评估
+##  生成的结果文件
 
-#### 评估轨迹精度
-```bash
-# 评估NDT轨迹
-rosrun lidar_odometry trajectory_evaluator \
-    ndt_trajectory_0.txt \
-    /path/to/kitti/ground_truth/00.txt \
-    ndt_evaluation_result.txt
+###  视频文件 (results/videos/)
+- `ndt_odometry_video_0.mp4` (3.1MB) - NDT里程计运行视频
+- `gn_icp_odometry_video_0.mp4` (3.1MB) - GN-ICP里程计运行视频
 
-# 评估GN-ICP轨迹
-rosrun lidar_odometry trajectory_evaluator \
-    gn_icp_trajectory_0.txt \
-    /path/to/kitti/ground_truth/00.txt \
-    gn_icp_evaluation_result.txt
-```
+###  截图文件 (results/screenshots/)
+- `ndt_global_map_screenshot_0.png` (20KB) - NDT全局地图截图
+- `gn_icp_global_map_screenshot_0.png` (20KB) - GN-ICP全局地图截图
 
-## 参数说明
+###  点云文件 (results/pointclouds/)
+- `ndt_global_map_0.pcd/.ply` (741KB) - NDT全局地图点云
+- `gn_icp_global_map_0.pcd/.ply` (741KB) - GN-ICP全局地图点云
 
-### 配准参数
-- `resolution`: NDT网格分辨率 (默认: 1.0)
-- `step_size`: 优化步长 (默认: 0.1)
-- `max_iterations`: 最大迭代次数 (默认: 35)
-- `transformation_epsilon`: 变换收敛阈值 (默认: 0.01)
-- `euclidean_fitness_epsilon`: 欧几里得适应度阈值 (默认: 0.01)
+###  轨迹文件 (results/trajectories/)
+- `ndt_trajectory_0.txt` (15KB) - NDT轨迹(TUM格式)
+- `gn_icp_trajectory_0.txt` (15KB) - GN-ICP轨迹(TUM格式)
+- `ndt_trajectory_kitti_0.txt` (774B) - KITTI NDT轨迹
 
-### 里程计参数
-- `voxel_size`: 体素大小 (默认: 0.1)
-- `max_range`: 最大距离 (默认: 100.0)
-- `min_range`: 最小距离 (默认: 1.0)
+###  可视化文件 (results/visualizations/)
+- `ndt_pointcloud_visualization.png` (3.5MB) - NDT点云可视化
+- `trajectory_visualization.png` (596KB) - 轨迹可视化
 
-### ROS参数
-- `pointcloud_topic`: 点云话题 (默认: /velodyne_points)
-- `imu_topic`: IMU话题 (默认: /imu)
-- `odom_frame`: 里程计坐标系 (默认: odom)
-- `lidar_frame`: 激光雷达坐标系 (默认: velodyne)
+###  EVO评估结果 (evo_evaluation_results/)
+- `evo_evaluation_results/ndt/` - NDT评估结果(8个文件)
+- `evo_evaluation_results/gn_icp/` - GN-ICP评估结果(8个文件)
 
-## 输出格式
+##  环境要求
 
-### 轨迹文件格式 (TUM格式)
-```
-# timestamp tx ty tz qx qy qz qw
-0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 1.000000
-0.100000 0.100000 0.000000 0.000000 0.000000 0.000000 0.000000 1.000000
-...
-```
+- **CMake 3.16+**
+- **PCL (Point Cloud Library) 1.8+**
+- **Eigen3 3.3+**
+- **OpenCV 4.0+**
+- **Python 3.8+**
+- **EVO** 
 
-### 评估结果格式
-```
-# Trajectory Evaluation Results
-# ATE (Absolute Trajectory Error)
-ATE_RMSE: 0.123456
-ATE_MEAN: 0.098765
-ATE_STD: 0.045678
-ATE_MAX: 0.234567
+##  性能统计
 
-# RPE (Relative Pose Error)
-RPE_TRANS_RMSE: 0.012345
-RPE_ROT_RMSE: 0.001234
-RPE_TRANS_MEAN: 0.009876
-RPE_ROT_MEAN: 0.000987
+### 轨迹统计
+- **轨迹点数**: 200个
+- **总距离**: 109.68 m
+- **平均速度**: 5.51 m/s
+- **持续时间**: 19.90 s
+- **X范围**: 83.44 m
+- **Y范围**: 55.11 m
+- **Z范围**: 3.35 m
 
-# Trajectory Statistics
-TRAJECTORY_LENGTH: 1234.567890
-AVERAGE_SPEED: 12.345678
-```
+### 点云统计
+- **全局地图点数**: 24,580个点
+- **地图文件大小**: 741KB (PCD/PLY格式)
 
-## 实验要求
+##  主要功能
 
-### 1. 配准算法实现
-- ✅ 调用PCL库完成NDT配准
-- ✅ 手写GN-ICP实现配准
+1. **配准算法**: NDT和GN-ICP两种配准方法
+2. **里程计**: 基于KITTI数据集的激光雷达里程计
+3. **视频录制**: 自动录制里程计运行过程
+4. **地图保存**: 保存全局地图为PCD和PLY格式
+5. **轨迹评估**: 使用EVO工具进行轨迹分析
+6. **Bag包处理**: 处理ROS bag包生成轨迹
 
-### 2. 里程计实现
-- ✅ 基于KITTI数据集的前端里程计
-- ✅ NDT里程计代码编写
-- ✅ GN-ICP里程计代码编写
+##  详细文档
 
-### 3. ROS节点
-- ✅ 里程计轨迹保存
-- ✅ 与evo评估工具兼容
+更多详细信息请参考：
+- `PROJECT_FILES_ORGANIZATION.md` - 完整的文件整理说明
+- `项目报告.md` - 完整的项目报告文档
 
-### 4. 实时数据
-- ✅ 小车录制lidar数据bag包支持
-- ✅ 实时IMU积分预测
 
-### 5. 代码规范
-- ✅ C++编写
-- ✅ Git源代码管理
-- ✅ 符合C++命名规范
-- ✅ 面向对象设计
-- ✅ 头文件规范
-- ✅ ROS项目规范
-- ✅ CMakeLists.txt配置
 
-## 注意事项
+##  License
 
-1. **数据路径**: 确保KITTI数据集路径正确
-2. **内存使用**: 大点云数据可能占用较多内存
-3. **参数调优**: 根据具体场景调整配准参数
-4. **可视化**: 使用RViz查看实时结果
-5. **评估**: 使用evo工具进行更详细的轨迹评估
-
-## 故障排除
-
-### 常见问题
-1. **编译错误**: 检查依赖项安装
-2. **运行时错误**: 检查数据路径和参数
-3. **可视化问题**: 检查RViz配置
-4. **性能问题**: 调整体素大小和距离范围
-
-### 调试技巧
-- 使用`rosrun`单独运行节点
-- 检查话题发布和订阅
-- 使用`rostopic echo`查看数据
-- 使用`rviz`可视化结果
-
-## 扩展功能
-
-- [ ] 回环检测
-- [ ] 全局优化
-- [ ] 多传感器融合
-- [ ] 实时建图
-- [ ] 语义分割集成
-
-## 许可证
-
-MIT License
-
-## 贡献
-
-欢迎提交Issue和Pull Request！
+本项目仅供学习和研究使用。
