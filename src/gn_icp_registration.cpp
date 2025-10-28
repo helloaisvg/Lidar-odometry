@@ -281,7 +281,7 @@ void GNICPRegistration::setVoxelGridFilter(double leaf_size) {
     use_voxel_filter_ = true;
 }
 
-PointCloudPtr GNICPRegistration::preprocessPointCloud(const PointCloudPtr& cloud) {
+GNICPRegistration::PointCloudPtr GNICPRegistration::preprocessPointCloud(const PointCloudPtr& cloud) {
     PointCloudPtr filtered_cloud(new PointCloud);
     
     if (use_voxel_filter_) {

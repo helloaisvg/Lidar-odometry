@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- 启动rviz -->
+    <node pkg="rviz" type="rviz" name="rviz" args="-d $(find lio_ndt)/rviz/front_end.rviz"/>
+    
+    <!-- 启动前端节点，使用NDT配准方法 -->
+    <node pkg="lio_ndt" type="front_end_node" name="front_end_node" output="screen">
+        <param name="registration_method" value="0" />
+    </node>
+</launch>

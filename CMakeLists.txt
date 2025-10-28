@@ -21,6 +21,7 @@ find_package(pcl_ros REQUIRED)
 
 find_package(PCL 1.8 REQUIRED)
 find_package(Eigen3 REQUIRED)
+find_package(OpenCV REQUIRED)
 
 ## 系统依赖
 find_package(Boost REQUIRED COMPONENTS system filesystem thread)
@@ -43,9 +44,11 @@ set(SOURCES
   src/ndt_registration.cpp
   src/gn_icp_registration.cpp
   src/lidar_odometry.cpp
+  src/lidar_odometry_enhanced.cpp
   src/imu_integration.cpp
-  src/ros_odometry_node.cpp
-  src/trajectory_evaluator.cpp
+  # 暂时移除ROS 1依赖的文件
+  # src/ros_odometry_node.cpp
+  # src/trajectory_evaluator.cpp
 )
 
 ## 头文件
@@ -65,23 +68,34 @@ add_library(${PROJECT_NAME}_lib ${SOURCES} ${HEADERS})
 target_link_libraries(${PROJECT_NAME}_lib
   ${PCL_LIBRARIES}
   ${Boost_LIBRARIES}
+  ${OpenCV_LIBS}
 )
 
-## 可执行文件
-add_executable(ndt_odometry src/ndt_odometry.cpp)
-target_link_libraries(ndt_odometry ${PROJECT_NAME}_lib)
+## 可执行文件（只保留真实的KITTI里程计）
 
-add_executable(icp_odometry src/icp_odometry.cpp)
-target_link_libraries(icp_odometry ${PROJECT_NAME}_lib)
+## KITTI数据版本
+add_executable(kitti_ndt_odometry src/kitti_ndt_odometry.cpp)
+target_link_libraries(kitti_ndt_odometry ${PROJECT_NAME}_lib)
 
-add_executable(ros_odometry_node src/ros_odometry_node.cpp)
-target_link_libraries(ros_odometry_node ${PROJECT_NAME}_lib)
+add_executable(kitti_icp_odometry src/kitti_icp_odometry.cpp)
+target_link_libraries(kitti_icp_odometry ${PROJECT_NAME}_lib)
 
-add_executable(trajectory_evaluator src/trajectory_evaluator.cpp)
-target_link_libraries(trajectory_evaluator ${PROJECT_NAME}_lib)
+## 增强版KITTI里程计（包含视频录制和截图）
+add_executable(kitti_enhanced_odometry src/kitti_enhanced_odometry.cpp)
+target_link_libraries(kitti_enhanced_odometry ${PROJECT_NAME}_lib)
+
+## 完整功能演示程序
+# complete_demo已删除 - 只保留真实的KITTI里程计
+
+# ROS节点需要ROS 1支持，暂时不编译
+# add_executable(ros_odometry_node src/ros_odometry_node.cpp)
+# target_link_libraries(ros_odometry_node ${PROJECT_NAME}_lib)
+
+# add_executable(trajectory_evaluator src/trajectory_evaluator.cpp)
+# target_link_libraries(trajectory_evaluator ${PROJECT_NAME}_lib)
 
 ## 安装
-install(TARGETS ${PROJECT_NAME}_lib ndt_odometry icp_odometry ros_odometry_node trajectory_evaluator
+install(TARGETS ${PROJECT_NAME}_lib kitti_ndt_odometry kitti_icp_odometry kitti_enhanced_odometry
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION lib/${PROJECT_NAME}

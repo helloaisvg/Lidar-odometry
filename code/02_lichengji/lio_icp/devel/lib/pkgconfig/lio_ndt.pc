@@ -1,0 +1,8 @@
+prefix=/home/beavers/Documents/13_ros/02_lichengji/lio_icp/devel
+
+Name: lio_ndt
+Description: Description of lio_ndt
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

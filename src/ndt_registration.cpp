@@ -104,7 +104,7 @@ void NDTRegistration::setVoxelGridFilter(double leaf_size) {
     use_voxel_filter_ = true;
 }
 
-PointCloudPtr NDTRegistration::preprocessPointCloud(const PointCloudPtr& cloud) {
+NDTRegistration::PointCloudPtr NDTRegistration::preprocessPointCloud(const PointCloudPtr& cloud) {
     PointCloudPtr filtered_cloud(new PointCloud);
     
     if (use_voxel_filter_) {

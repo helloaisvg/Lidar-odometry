@@ -265,17 +265,17 @@ void LidarOdometry::visualizeTrajectory(bool show_clouds) {
     viewer->setBackgroundColor(0, 0, 0);
 
     // 绘制轨迹
-    pcl::PointCloud<pcl::PointXYZ> trajectory_cloud;
+    pcl::PointCloud<pcl::PointXYZ>::Ptr trajectory_cloud(new pcl::PointCloud<pcl::PointXYZ>);
     for (const auto& point : trajectory_) {
         pcl::PointXYZ p;
         p.x = point.position.x();
         p.y = point.position.y();
         p.z = point.position.z();
-        trajectory_cloud.push_back(p);
+        trajectory_cloud->push_back(p);
     }
 
-    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> trajectory_color(&trajectory_cloud, 255, 0, 0);
-    viewer->addPointCloud<pcl::PointXYZ>(trajectory_cloud.makeShared(), trajectory_color, "trajectory");
+    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> trajectory_color(trajectory_cloud, 255, 0, 0);
+    viewer->addPointCloud<pcl::PointXYZ>(trajectory_cloud, trajectory_color, "trajectory");
     viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 3, "trajectory");
 
     // 添加坐标系
@@ -305,7 +305,7 @@ void LidarOdometry::getStatistics(int& total_frames, int& successful_frames, dou
     average_time = total_frames_ > 0 ? total_processing_time_ / total_frames_ : 0.0;
 }
 
-PointCloudPtr LidarOdometry::preprocessPointCloud(const PointCloudPtr& cloud) {
+LidarOdometry::PointCloudPtr LidarOdometry::preprocessPointCloud(const PointCloudPtr& cloud) {
     // 距离滤波
     PointCloudPtr range_filtered = rangeFilter(cloud);
     
@@ -315,7 +315,7 @@ PointCloudPtr LidarOdometry::preprocessPointCloud(const PointCloudPtr& cloud) {
     return voxel_filtered;
 }
 
-PointCloudPtr LidarOdometry::rangeFilter(const PointCloudPtr& cloud) {
+LidarOdometry::PointCloudPtr LidarOdometry::rangeFilter(const PointCloudPtr& cloud) {
     PointCloudPtr filtered_cloud(new PointCloud);
     
     for (const auto& point : cloud->points) {
@@ -328,7 +328,7 @@ PointCloudPtr LidarOdometry::rangeFilter(const PointCloudPtr& cloud) {
     return filtered_cloud;
 }
 
-PointCloudPtr LidarOdometry::voxelFilter(const PointCloudPtr& cloud) {
+LidarOdometry::PointCloudPtr LidarOdometry::voxelFilter(const PointCloudPtr& cloud) {
     PointCloudPtr filtered_cloud(new PointCloud);
     
     pcl::VoxelGrid<pcl::PointXYZ> voxel_filter;
@@ -355,6 +355,30 @@ void LidarOdometry::initializeRegistration() {
         gn_icp_registration_ = std::make_unique<GNICPRegistration>(50, 0.5, 1e-6, 1e-6, true, true);
         gn_icp_registration_->setVoxelGridFilter(voxel_size_);
     }
+}
+
+// 更新全局地图
+void LidarOdometry::updateGlobalMap(const PointCloudPtr& cloud) {
+    if (!global_map_) {
+        global_map_ = std::make_shared<PointCloud>();
+    }
+    
+    if (!cloud || cloud->empty()) {
+        return;
+    }
+    
+    // 转换点云到全局坐标系
+    PointCloudPtr transformed_cloud(new PointCloud);
+    pcl::transformPointCloud(*cloud, *transformed_cloud, 
+                            current_pose_.cast<float>());
+    
+    // 合并到全局地图
+    *global_map_ += *transformed_cloud;
+}
+
+// 获取全局地图
+LidarOdometry::PointCloudPtr LidarOdometry::getGlobalMap() const {
+    return global_map_;
 }
 
 } // namespace lidar_odometry

@@ -1,28 +1,180 @@
+# 激光雷达里程计项目 .gitignore
+
+# ===========================================
+# 大数据文件 (不应推送到远程)
+# ===========================================
+
+# KITTI数据集
+kitti_data/
+data_odometry_velodyne.zip
 data.bag
 
-# ROS 2 build files
+# ===========================================
+# 编译输出文件
+# ===========================================
+
+# CMake构建文件
 build/
 install/
 log/
 
-# Python cache
-__pycache__/
-*.pyc
-*.pyo
+# 编译生成的可执行文件
+*.exe
+*.out
+*.app
 
-# Results and temporary files
+# ===========================================
+# Python虚拟环境
+# ===========================================
+
+# EVO虚拟环境
+evo_env/
+venv/
+env/
+.venv/
+
+# Python缓存文件
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# ===========================================
+# 结果文件 (运行时生成)
+# ===========================================
+
+# 结果目录
+results/
+evo_evaluation_results/
+trajectory_evaluation_results/
 direct_processing_results/
 quick_test_results/
+
+# 点云文件
+*.pcd
+*.ply
+
+# 图像文件
 *.png
 *.jpg
 *.jpeg
+*.gif
+*.bmp
 
-# IDE files
+# 视频文件
+*.mp4
+*.avi
+*.mov
+*.mkv
+
+# 轨迹文件
+*_trajectory_*.txt
+*_trajectory_kitti_*.txt
+
+# 统计文件
+*_stats.txt
+
+# 截图文件
+*_screenshot_*.png
+
+# 视频文件
+*_video_*.mp4
+
+# 全局地图文件
+*_global_map_*.pcd
+*_global_map_*.ply
+*_global_map_screenshot_*.png
+
+# ===========================================
+# 系统文件
+# ===========================================
+
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+
+# ===========================================
+# IDE和编辑器文件
+# ===========================================
+
+# VSCode
 .vscode/
+*.code-workspace
+
+# CLion
 .idea/
+cmake-build-*/
+
+# Vim
 *.swp
 *.swo
+*~
 
-# OS files
-.DS_Store
-Thumbs.db
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# ===========================================
+# 临时文件
+# ===========================================
+
+# 临时文件
+*.tmp
+*.temp
+*.log
+*.bak
+*.backup
+
+# 压缩文件
+*.zip
+*.tar.gz
+*.tar.bz2
+*.rar
+*.7z
+
+# ===========================================
+# 文档文件 (可选，根据需要调整)
+# ===========================================
+
+# 如果不想推送某些文档，可以取消注释
+# *.md
+# docs/
+# documentation/
+
+# ===========================================
+# 测试文件
+# ===========================================
+
+# 测试输出
+test_results/
+test_output/
+*.test
+
+# ===========================================
+# 配置文件 (可选)
+# ===========================================
+
+# 如果不想推送某些配置文件，可以取消注释
+# *.conf
+# *.config
+# config/

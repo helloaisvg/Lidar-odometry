@@ -142,6 +142,34 @@ public:
     void visualizeTrajectory(bool show_clouds = false);
 
     /**
+     * @brief 可视化轨迹并录制视频
+     * @param video_filename 视频文件名
+     * @param show_clouds 是否显示点云
+     */
+    void visualizeTrajectoryWithVideo(const std::string& video_filename, 
+                                      bool show_clouds = false);
+
+    /**
+     * @brief 保存全局地图
+     * @param filename 文件名
+     * @return 是否成功保存
+     */
+    bool saveGlobalMap(const std::string& filename) const;
+
+    /**
+     * @brief 保存全局地图截图
+     * @param filename 文件名
+     * @return 是否成功保存
+     */
+    bool saveGlobalMapScreenshot(const std::string& filename) const;
+
+    /**
+     * @brief 获取全局地图
+     * @return 全局地图指针
+     */
+    PointCloudPtr getGlobalMap() const;
+
+    /**
      * @brief 重置里程计
      */
     void reset();
@@ -174,6 +202,9 @@ private:
     int total_frames_;           ///< 总帧数
     int successful_frames_;      ///< 成功帧数
     double total_processing_time_; ///< 总处理时间
+    
+    // 全局地图
+    PointCloudPtr global_map_;  ///< 全局地图点云
     
     /**
      * @brief 预处理点云
@@ -210,6 +241,12 @@ private:
      * @brief 初始化配准器
      */
     void initializeRegistration();
+
+    /**
+     * @brief 更新全局地图
+     * @param cloud 输入点云（已转换到全局坐标系）
+     */
+    void updateGlobalMap(const PointCloudPtr& cloud);
 };
 
 } // namespace lidar_odometry
